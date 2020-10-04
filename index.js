@@ -13,4 +13,6 @@ app.get('/categories', (req, res) => {
         res.send(importData)
 })
 
-app.listen(port)
+app.listen(port, () => {
+    console.log(`Example listening on port ${port}`);
+})
