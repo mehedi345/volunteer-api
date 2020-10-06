@@ -65,10 +65,25 @@ client.connect(err => {
       })
 
   app.get('/user', (req, res) => {
-    userCollection.find({ email: req.query.email})
-    .toArray( (err, documents) => {
-      res.send(documents);
-    })
+    const bearer = req.headers.authorization;
+    if (bearer && bearer.startsWith('Bearer ')) {
+        const idToken = bearer.split(' ')[1];
+       
+        admin.auth().verifyIdToken(idToken)
+            .then((decodedToken) => {
+                let tokenEmail = decodedToken.email;
+                usersCollection.find({
+                        email: tokenEmail
+                    })
+                    .toArray((err, documents) => {
+                        res.send(documents)
+                    })
+            }).catch((error) => {
+                res.sendStatus(401);
+            });
+    } else {
+        res.sendStatus(401);
+    }
 })
 
 app.delete('/deleteData/:id', (req, res) => {
